@@ -24,3 +24,6 @@ The app connects to `http://localhost:11434` and uses `huihui_ai/qwen3-coder-abl
 ## Skills
 
 The sidebar includes local skills. A skill is a reusable system instruction that guides the model for the active chat. Select a skill before chatting, or use the plus button in the Skills section to create your own.
+
+## Basic UI
+![Basic UI](basic_ui.png)

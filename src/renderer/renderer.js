@@ -44,7 +44,10 @@ const elements = {
   skillPromptInput: document.querySelector("#skillPromptInput"),
   saveSkillButton: document.querySelector("#saveSkillButton"),
   deleteSkillButton: document.querySelector("#deleteSkillButton"),
-  closeSkillPanelButton: document.querySelector("#closeSkillPanelButton")
+  closeSkillPanelButton: document.querySelector("#closeSkillPanelButton"),
+  minimizeWindowButton: document.querySelector("#minimizeWindowButton"),
+  maximizeWindowButton: document.querySelector("#maximizeWindowButton"),
+  closeWindowButton: document.querySelector("#closeWindowButton")
 };
 
 let settings = loadSettings();
@@ -62,6 +65,18 @@ checkOllama();
 
 elements.newChatButton.addEventListener("click", startNewChat);
 elements.newChatWideButton.addEventListener("click", startNewChat);
+elements.minimizeWindowButton.addEventListener("click", () => {
+  window.ollamaDesktop.minimizeWindow();
+});
+elements.maximizeWindowButton.addEventListener("click", async () => {
+  const isMaximized = await window.ollamaDesktop.toggleMaximizeWindow();
+  elements.maximizeWindowButton.textContent = isMaximized ? "❐" : "□";
+  elements.maximizeWindowButton.title = isMaximized ? "Restore" : "Maximize";
+  elements.maximizeWindowButton.setAttribute("aria-label", isMaximized ? "Restore" : "Maximize");
+});
+elements.closeWindowButton.addEventListener("click", () => {
+  window.ollamaDesktop.closeWindow();
+});
 
 elements.settingsRailButton.addEventListener("click", () => {
   elements.settingsPanel.hidden = !elements.settingsPanel.hidden;

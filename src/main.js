@@ -1,6 +1,10 @@
 const { app, BrowserWindow, Menu, ipcMain } = require("electron");
 const path = require("node:path");
 
+function getWindow(event) {
+  return BrowserWindow.fromWebContents(event.sender);
+}
+
 ipcMain.handle("ollama:tags", async (_event, host) => {
   const response = await fetch(`${host}/api/tags`, { cache: "no-store" });
 
@@ -29,6 +33,30 @@ ipcMain.handle("ollama:chat", async (_event, { host, model, messages }) => {
   }
 
   return response.json();
+});
+
+ipcMain.handle("window:minimize", (event) => {
+  getWindow(event)?.minimize();
+});
+
+ipcMain.handle("window:toggle-maximize", (event) => {
+  const window = getWindow(event);
+
+  if (!window) {
+    return false;
+  }
+
+  if (window.isMaximized()) {
+    window.unmaximize();
+    return false;
+  }
+
+  window.maximize();
+  return true;
+});
+
+ipcMain.handle("window:close", (event) => {
+  getWindow(event)?.close();
 });
 
 function createWindow() {
