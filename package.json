@@ -1,0 +1,21 @@
+{
+  "name": "qwen-ollama-desktop",
+  "version": "0.1.0",
+  "description": "A simple Codex-inspired desktop chat UI for local Ollama Qwen models.",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron ."
+  },
+  "keywords": [
+    "electron",
+    "ollama",
+    "qwen",
+    "desktop"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^33.3.1"
+  }
+}

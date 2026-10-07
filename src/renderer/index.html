@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Qwen Ollama</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <nav class="rail" aria-label="Primary">
+        <button class="rail-button active" title="Home" aria-label="Home">
+          <span>⌂</span>
+        </button>
+        <button class="rail-button" title="History" aria-label="History">
+          <span>◴</span>
+        </button>
+        <button class="rail-button" title="Models" aria-label="Models">
+          <span>▥</span>
+        </button>
+        <button class="rail-button" title="Settings" aria-label="Settings" id="settingsRailButton">
+          <span>⚙</span>
+        </button>
+      </nav>
+
+      <aside class="sidebar">
+        <header class="sidebar-header">
+          <div class="brand">
+            <span class="brand-mark">›_</span>
+            <span>Qwen</span>
+          </div>
+          <button class="icon-button" id="newChatButton" title="New chat" aria-label="New chat">＋</button>
+        </header>
+
+        <button class="new-chat" id="newChatWideButton">
+          <span>✎</span>
+          <span>New chat</span>
+        </button>
+
+        <section class="sidebar-section">
+          <div class="section-title">Chats</div>
+          <div class="chat-list" id="chatList"></div>
+        </section>
+
+        <section class="sidebar-section skills-section">
+          <div class="section-heading">
+            <div class="section-title">Skills</div>
+            <button class="mini-button" id="addSkillButton" title="Add skill" aria-label="Add skill">＋</button>
+          </div>
+          <div class="skill-list" id="skillList"></div>
+        </section>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div class="window-drag"></div>
+          <div class="connection-pill" id="connectionPill">
+            <span class="status-dot"></span>
+            <span id="connectionText">Checking Ollama</span>
+          </div>
+        </header>
+
+        <section class="settings-panel" id="settingsPanel" hidden>
+          <label>
+            <span>Ollama host</span>
+            <input id="hostInput" type="url" spellcheck="false" />
+          </label>
+          <label>
+            <span>Model</span>
+            <input id="modelInput" type="text" spellcheck="false" placeholder="huihui_ai/qwen3-coder-abliterated:30b" />
+          </label>
+          <button class="secondary-button" id="saveSettingsButton">Save</button>
+        </section>
+
+        <section class="skill-panel" id="skillPanel" hidden>
+          <header>
+            <div>
+              <h2 id="skillPanelTitle">New skill</h2>
+              <p>Skills are reusable system instructions for Qwen.</p>
+            </div>
+            <button class="icon-button" id="closeSkillPanelButton" title="Close" aria-label="Close">×</button>
+          </header>
+          <label>
+            <span>Name</span>
+            <input id="skillNameInput" type="text" spellcheck="false" placeholder="Security mentor" />
+          </label>
+          <label>
+            <span>Instructions</span>
+            <textarea id="skillPromptInput" rows="8" spellcheck="true" placeholder="You are a focused mentor..."></textarea>
+          </label>
+          <div class="skill-panel-actions">
+            <button class="danger-button" id="deleteSkillButton" type="button">Delete</button>
+            <button class="secondary-button" id="saveSkillButton" type="button">Save skill</button>
+          </div>
+        </section>
+
+        <section class="empty-state" id="emptyState">
+          <div class="qwen-glyph">›_</div>
+          <h1>Ask Qwen anything.</h1>
+          <p>Simple local chat through Ollama, without living in the terminal.</p>
+        </section>
+
+        <section class="messages" id="messages" aria-live="polite"></section>
+
+        <form class="composer" id="composer">
+          <textarea
+            id="promptInput"
+            rows="1"
+            placeholder="Message Qwen..."
+            autocomplete="off"
+            spellcheck="true"
+          ></textarea>
+          <button class="send-button" id="sendButton" type="submit" title="Send" aria-label="Send">↑</button>
+        </form>
+      </main>
+    </div>
+
+    <script src="./renderer.js"></script>
+  </body>
+</html>
