@@ -527,6 +527,104 @@ button {
   overflow-wrap: anywhere;
 }
 
+.markdown-body {
+  white-space: normal;
+}
+
+.markdown-body > :first-child {
+  margin-top: 0;
+}
+
+.markdown-body > :last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4 {
+  margin: 18px 0 8px;
+  color: var(--text);
+  line-height: 1.25;
+  letter-spacing: 0;
+}
+
+.markdown-body h1 {
+  font-size: 24px;
+}
+
+.markdown-body h2 {
+  font-size: 21px;
+}
+
+.markdown-body h3 {
+  font-size: 18px;
+}
+
+.markdown-body h4 {
+  font-size: 16px;
+}
+
+.markdown-body p {
+  margin: 0 0 12px;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  margin: 0 0 12px;
+  padding-left: 24px;
+}
+
+.markdown-body li {
+  margin: 5px 0;
+}
+
+.markdown-body blockquote {
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border-left: 3px solid #4f7fae;
+  background: #181c20;
+  color: #d8d8d5;
+}
+
+.markdown-body pre {
+  position: relative;
+  margin: 12px 0;
+  padding: 14px;
+  overflow: auto;
+  border: 1px solid #343632;
+  border-radius: 8px;
+  background: #0b0c0b;
+  color: #f1f1ef;
+}
+
+.markdown-body pre code {
+  padding: 0;
+  background: transparent;
+  white-space: pre;
+}
+
+.markdown-body code {
+  border-radius: 5px;
+  padding: 2px 5px;
+  background: #111311;
+  color: #f4d58d;
+  font-family: "Cascadia Code", "Consolas", monospace;
+  font-size: 0.92em;
+}
+
+.markdown-body .code-language {
+  margin: -2px 0 10px;
+  color: var(--subtle);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.markdown-body a {
+  color: var(--accent-strong);
+}
+
 .message.user .message-bubble {
   background: var(--user);
   border-color: #314b68;

@@ -106,6 +106,12 @@ elements.promptInput.addEventListener("input", () => {
 });
 
 elements.promptInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" && event.altKey) {
+    event.preventDefault();
+    insertPromptNewline();
+    return;
+  }
+
   if (event.key === "Enter" && !event.shiftKey) {
     event.preventDefault();
     elements.composer.requestSubmit();
@@ -266,7 +272,7 @@ function createMessageElement(message) {
 
   const bubble = document.createElement("div");
   bubble.className = "message-bubble";
-  bubble.textContent = message.content;
+  renderMessageContent(bubble, message);
 
   wrapper.append(role, bubble);
   return wrapper;
@@ -332,9 +338,172 @@ function updateLastAssistantMessage(content) {
   const lastBubble = bubbles[bubbles.length - 1];
 
   if (lastBubble) {
-    lastBubble.textContent = content || "Thinking...";
+    renderMarkdownInto(lastBubble, content || "Thinking...");
     scrollMessagesToBottom();
   }
+}
+
+function renderMessageContent(container, message) {
+  if (message.role === "assistant") {
+    renderMarkdownInto(container, message.content);
+    return;
+  }
+
+  container.textContent = message.content;
+}
+
+function renderMarkdownInto(container, markdown) {
+  container.classList.add("markdown-body");
+  container.innerHTML = renderMarkdown(markdown);
+}
+
+function renderMarkdown(markdown) {
+  const lines = markdown.replace(/\r\n/g, "\n").split("\n");
+  const html = [];
+  let paragraph = [];
+  let listType = null;
+  let inCodeBlock = false;
+  let codeLanguage = "";
+  let codeLines = [];
+
+  const flushParagraph = () => {
+    if (paragraph.length === 0) {
+      return;
+    }
+
+    html.push(`<p>${renderInlineMarkdown(paragraph.join(" "))}</p>`);
+    paragraph = [];
+  };
+
+  const closeList = () => {
+    if (!listType) {
+      return;
+    }
+
+    html.push(`</${listType}>`);
+    listType = null;
+  };
+
+  const openList = (type) => {
+    if (listType === type) {
+      return;
+    }
+
+    closeList();
+    html.push(`<${type}>`);
+    listType = type;
+  };
+
+  for (const line of lines) {
+    const codeFence = line.match(/^```(\w+)?\s*$/);
+    if (codeFence) {
+      if (inCodeBlock) {
+        html.push(renderCodeBlock(codeLines.join("\n"), codeLanguage));
+        inCodeBlock = false;
+        codeLanguage = "";
+        codeLines = [];
+      } else {
+        flushParagraph();
+        closeList();
+        inCodeBlock = true;
+        codeLanguage = codeFence[1] || "";
+      }
+      continue;
+    }
+
+    if (inCodeBlock) {
+      codeLines.push(line);
+      continue;
+    }
+
+    if (!line.trim()) {
+      flushParagraph();
+      closeList();
+      continue;
+    }
+
+    const heading = line.match(/^(#{1,4})\s+(.+)$/);
+    if (heading) {
+      flushParagraph();
+      closeList();
+      const level = heading[1].length;
+      html.push(`<h${level}>${renderInlineMarkdown(heading[2])}</h${level}>`);
+      continue;
+    }
+
+    const blockquote = line.match(/^>\s+(.+)$/);
+    if (blockquote) {
+      flushParagraph();
+      closeList();
+      html.push(`<blockquote>${renderInlineMarkdown(blockquote[1])}</blockquote>`);
+      continue;
+    }
+
+    const unordered = line.match(/^\s*[-*]\s+(.+)$/);
+    if (unordered) {
+      flushParagraph();
+      openList("ul");
+      html.push(`<li>${renderInlineMarkdown(unordered[1])}</li>`);
+      continue;
+    }
+
+    const ordered = line.match(/^\s*\d+[.)]\s+(.+)$/);
+    if (ordered) {
+      flushParagraph();
+      openList("ol");
+      html.push(`<li>${renderInlineMarkdown(ordered[1])}</li>`);
+      continue;
+    }
+
+    closeList();
+    paragraph.push(line.trim());
+  }
+
+  if (inCodeBlock) {
+    html.push(renderCodeBlock(codeLines.join("\n"), codeLanguage));
+  }
+
+  flushParagraph();
+  closeList();
+
+  return html.join("");
+}
+
+function renderCodeBlock(code, language) {
+  const languageLabel = language ? `<div class="code-language">${escapeHtml(language)}</div>` : "";
+  return `<pre>${languageLabel}<code>${escapeHtml(code)}</code></pre>`;
+}
+
+function renderInlineMarkdown(value) {
+  let html = escapeHtml(value);
+  const codePlaceholders = [];
+
+  html = html.replace(/`([^`]+)`/g, (_match, code) => {
+    const token = `@@CODE_${codePlaceholders.length}@@`;
+    codePlaceholders.push(`<code>${code}</code>`);
+    return token;
+  });
+
+  html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
+  html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  html = html.replace(/__([^_]+)__/g, "<strong>$1</strong>");
+  html = html.replace(/\*([^*]+)\*/g, "<em>$1</em>");
+  html = html.replace(/_([^_]+)_/g, "<em>$1</em>");
+
+  for (let index = 0; index < codePlaceholders.length; index += 1) {
+    html = html.replace(`@@CODE_${index}@@`, codePlaceholders[index]);
+  }
+
+  return html;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 async function checkOllama() {
@@ -451,6 +620,18 @@ function normalizeHost(host) {
 function autoResizePrompt() {
   elements.promptInput.style.height = "auto";
   elements.promptInput.style.height = `${Math.min(elements.promptInput.scrollHeight, 180)}px`;
+}
+
+function insertPromptNewline() {
+  const input = elements.promptInput;
+  const start = input.selectionStart;
+  const end = input.selectionEnd;
+
+  input.value = `${input.value.slice(0, start)}\n${input.value.slice(end)}`;
+  input.selectionStart = start + 1;
+  input.selectionEnd = start + 1;
+  autoResizePrompt();
+  elements.sendButton.disabled = input.value.trim().length === 0 || isGenerating;
 }
 
 function scrollMessagesToBottom() {
